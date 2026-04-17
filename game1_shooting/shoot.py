@@ -246,7 +246,7 @@ def main():
 
             hits = pygame.sprite.groupcollide(enemies, bullets, True, True)
             for enemy in hits:
-                score += 100
+                score += 1
                 explosion = Explosion(enemy.rect.center)
                 all_sprites.add(explosion)
                 effects.add(explosion)
@@ -276,11 +276,11 @@ def main():
             overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
             overlay.fill((0, 0, 0, 140))
             screen.blit(overlay, (0, 0))
-            draw_text(screen, "GAME OVER", 64, WIDTH // 2, HEIGHT // 2 - 40, RED)
-            draw_text(screen, f"FINAL SCORE: {score}", 36, WIDTH // 2, HEIGHT // 2 + 20)
+            draw_text(screen, "がめおべら", 64, WIDTH // 2, HEIGHT // 2 - 40, RED)
+            draw_text(screen, f"失われた命: {score}", 36, WIDTH // 2, HEIGHT // 2 + 20)
             draw_text(screen, "Press R to Restart / ESC to Quit", 30, WIDTH // 2, HEIGHT // 2 + 70)
         else:
-            draw_text(screen, "Move: Arrow / WASD  Shoot: Space", 24, WIDTH // 2, HEIGHT - 24)
+            draw_text(screen, "移動はいつもの！　スペースで撃て！", 24, WIDTH // 2, HEIGHT - 24)
 
         pygame.display.flip()
 
