@@ -276,11 +276,11 @@ def main():
             overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)
             overlay.fill((0, 0, 0, 140))
             screen.blit(overlay, (0, 0))
-            draw_text(screen, "がめおべら", 64, WIDTH // 2, HEIGHT // 2 - 40, RED)
-            draw_text(screen, f"失われた命: {score}", 36, WIDTH // 2, HEIGHT // 2 + 20)
+            draw_text(screen, "You are dead", 64, WIDTH // 2, HEIGHT // 2 - 40, RED)
+            draw_text(screen, f"Victim: {score}", 36, WIDTH // 2, HEIGHT // 2 + 20)
             draw_text(screen, "Press R to Restart / ESC to Quit", 30, WIDTH // 2, HEIGHT // 2 + 70)
         else:
-            draw_text(screen, "移動はいつもの！　スペースで撃て！", 24, WIDTH // 2, HEIGHT - 24)
+            draw_text(screen, "Move:WASD/Arrow　Shoot:SPACE", 24, WIDTH // 2, HEIGHT - 24)
 
         pygame.display.flip()
 
