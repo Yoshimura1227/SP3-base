@@ -4,6 +4,8 @@ from dataclasses import dataclass
 
 import pygame
 
+import logging
+
 # =========================
 # Simple 2D Vertical Shooter
 # -------------------------
