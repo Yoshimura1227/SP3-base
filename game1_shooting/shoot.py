@@ -18,7 +18,7 @@ FPS = 60
 TITLE = "Simple Vertical Shooter"
 
 PLAYER_SPEED = 6
-BULLET_SPEED = 10
+BULLET_SPEED = 1.5
 ENEMY_MIN_SPEED = 1
 ENEMY_MAX_SPEED = 3
 ENEMY_SPAWN_INTERVAL = 35  # ms
@@ -63,6 +63,8 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.y -= self.speed
         if self.rect.bottom < 0:
             self.kill()
+            
+            
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -239,6 +241,7 @@ def main():
                 bullet = player.shoot()
                 all_sprites.add(bullet)
                 bullets.add(bullet)
+                
 
             bullets.update()
             enemies.update()
@@ -279,6 +282,7 @@ def main():
             draw_text(screen, "You are dead", 64, WIDTH // 2, HEIGHT // 2 - 40, RED)
             draw_text(screen, f"Victim: {score}", 36, WIDTH // 2, HEIGHT // 2 + 20)
             draw_text(screen, "Press R to Restart / ESC to Quit", 30, WIDTH // 2, HEIGHT // 2 + 70)
+            draw_text(screen, TITLE, 50, WIDTH // 2, HEIGHT // 2 -100, BLUE)
         else:
             draw_text(screen, "Move:WASD/Arrow　Shoot:SPACE", 24, WIDTH // 2, HEIGHT - 24)
 
