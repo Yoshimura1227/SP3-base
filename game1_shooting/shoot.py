@@ -5,7 +5,8 @@ from dataclasses import dataclass
 import pygame
 
 import logging
-
+import os
+import uuid
 # =========================
 # Simple 2D Vertical Shooter
 # -------------------------
@@ -27,6 +28,10 @@ ENEMY_SPAWN_INTERVAL = 35  # ms
 PLAYER_SHOT_INTERVAL = 90  # ms
 STAR_COUNT = 50
 
+BASE_DIR = os.path.dirname(__file__)
+LOG_DIR = os.path.join(BASE_DIR, "logs")
+LOG_FILE = os.path.join(LOG_DIR, "shoot.log")
+
 WHITE = (245, 245, 245)
 BLACK = (20, 20, 30)
 BLUE = (90, 180, 255)
@@ -36,6 +41,30 @@ GREEN = (90, 255, 140)
 GRAY = (170, 170, 170)
 
 
+def setup_logger():
+    os.makedirs(LOG_DIR, exist_ok=True) # logs フォルダがなければ作る。すでにあってもエラーにしない
+    logger = logging.getLogger("shoot_logger") # "shoot_logger" という名前のロガーを取得する
+    logger.setLevel(logging.INFO) # INFO 以上のレベルのログを記録するように設定する
+    if not logger.handlers: # すでに handler が付いていないときだけ、出力設定を追加する
+        file_handler = logging.FileHandler(LOG_FILE, encoding="utf-8") # ログをファイルに書き出すための handler を作る
+        formatter = logging.Formatter( # ログ1行の表示形式を決める
+            "%(asctime)s [%(levelname)s] %(message)s", # 時刻、ログレベル、メッセージを出力する
+            datefmt="%Y-%m-%d %H:%M:%S", # 時刻の表示形式を「年-月-日 時:分:秒」にする
+        )
+        file_handler.setFormatter(formatter) # file_handler に表示形式を設定する
+        logger.addHandler(file_handler) # logger に file_handler を登録する
+    return logger # 設定済みの logger を呼び出し元に返す
+
+def log_event(logger, event_name, session_id, timestamp_ms, **kwargs): # 1回分のイベントログを出力する関数
+ parts = [ # ログ1行を作るための文字列を入れていくリスト
+     f"event={event_name}", # event=shot のようにイベント名を記録する
+     f"session_id={session_id}", # どのプレイの記録か分かるように session_id を記録する
+     f"timestamp_ms={timestamp_ms}", # ゲーム開始から何ミリ秒後かを記録する
+ ]
+ for key, value in kwargs.items(): # 追加で渡された項目を 1つずつ取り出す
+    parts.append(f"{key}={value}") # x=240 や score=100 のような形でリストに追加する
+ logger.info(" ".join(parts)) # parts を空白区切りで1つの文字列にし、INFOログとして出力する
+ 
 @dataclass
 class Star:
     x: float
@@ -199,8 +228,10 @@ def reset_game():
 
     player = Player()
     all_sprites.add(player)
+    
+    session_id = uuid.uuid4().hex[:8] #ランダムで重複しにくい長いIDを作り、その先頭8文字だけを session_id として使う
 
-    return player, all_sprites, bullets, enemies, effects, 0, False
+    return player, all_sprites, bullets, enemies, effects, 0, False,session_id
 
 
 def main():
@@ -208,13 +239,25 @@ def main():
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     pygame.display.set_caption(TITLE)
     clock = pygame.time.Clock()
+    
+    logger = setup_logger()
 
     spawn_enemy_event = pygame.USEREVENT + 1
     pygame.time.set_timer(spawn_enemy_event, ENEMY_SPAWN_INTERVAL)
 
     stars = create_stars()
-    player, all_sprites, bullets, enemies, effects, score, game_over = reset_game()
+    player, all_sprites, bullets, enemies, effects, score, game_over,session_id = reset_game()
 
+    log_event(
+            logger,
+            "session_start",
+            session_id,
+            pygame.time.get_ticks(),
+            score=score,
+            hp=player.hp,
+            x=player.rect.centerx,
+            y=player.rect.centery,
+            )
     running = True
     while running:
         dt = clock.tick(FPS)
@@ -231,7 +274,18 @@ def main():
                 if event.key == pygame.K_ESCAPE:
                     running = False
                 if event.key == pygame.K_r and game_over:
-                    player, all_sprites, bullets, enemies, effects, score, game_over = reset_game()
+                    player, all_sprites, bullets, enemies, effects, score, game_over, session_id = reset_game()
+                    
+        log_event(
+                    logger,
+                    "session_start",
+                    session_id,
+                    pygame.time.get_ticks(),
+                    score=score,
+                    hp=player.hp,
+                    x=player.rect.centerx,
+                    y=player.rect.centery,
+                 )
 
         if not game_over:
             for star in stars:
