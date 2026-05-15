@@ -248,6 +248,7 @@ def main():
     stars = create_stars()
     player, all_sprites, bullets, enemies, effects, score, game_over,session_id = reset_game()
 
+    # ログ出力
     log_event(
             logger,
             "session_start",
